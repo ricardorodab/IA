@@ -12,17 +12,12 @@
     ?goal <- (goal (move ?block1) (on-top-of ?block2))
     (block ?block1)
     (block ?block2)
-    (on-top-of (upper nothing) (lower ?block1))
-    ?stack1 <- (on-top-of (upper ?block1)
-                           (lower ?block3))
-    ?stack2 <- (on-top-of (upper nothing)
-                           (lower ?block2))
+    ?stack1 <- (stack ?block1 $?rest1)
+    ?stack2 <- (stack ?block2 $?rest2)
     =>
     (retract ?goal ?stack1 ?stack2)
-    (assert (on-top-of (upper ?block1)
-                       (lower ?block2))
-            (on-top-of (upper nothing)
-                       (lower ?block3)))
+    (assert (stack ?block1 ?block2 ?rest1))
+    (assert (stack ?rest2))
     (printout t ?block1 " moved on top of " ?block2 crlf)
   )
 
@@ -30,15 +25,11 @@
 (defrule move-to-floor
     ?goal <- (goal (move ?block1) (on-top-of floor))
     (block ?block1)
-    (on-top-of (upper nothing) (lower ?block1))
-    ?stack <- (on-top-of (upper ?block1)
-                         (lower ?block2))
+    ?stack1 <- (stack ?block1 $?rest)
     =>
-    (retract ?goal ?stack)
-    (assert (on-top-of (upper ?block1)
-                       (lower floor))
-            (on-top-of (upper nothing)
-                       (lower ?block2)))
+    (retract ?goal ?stack1)
+    (assert (stack ?block))
+    (assert (stack ?rest))
     (printout t ?block1 " moved on top of floor" crlf)
   )
 
@@ -46,10 +37,10 @@
 (defrule clear-upper-block
     (goal (move ?block1))
     (block ?block1)
-    (on-top-of (upper ?block2) (lower ?block1))
-    (block ?block2)
+    ?stack1 <- (stack ?top $? ?block1 $?)
     =>
-    (assert (goal (move ?block2) (on-top-of floor)))
+    (assert (stack $? ?top))
+    (assert (stack ?block1 $?))
   )
 
 ;; Agrega la meta requerida: quitar el cubo arriba del cubo sobre el que colcaré
@@ -57,10 +48,10 @@
 (defrule clear-lower-block
     (goal (on-top-of ?block1))
     (block ?block1)
-    (on-top-of (upper ?block2) (lower ?block1))
-    (block ?block2)
+    ?stack1 <- (stack ?top $? ?block1 $?)
     =>
-    (assert (goal (move ?block2) (on-top-of floor)))
+    (assert (stack $? ?top))
+    (assert (stack ?block1 $?))
   )
 
 (deffacts initial-state
