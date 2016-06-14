@@ -1,19 +1,66 @@
+/* -------------------------------------------------------------------                                      
+ * Minimax.java                                                                                             
+ * versión 1.0                                                                                              
+ * Copyright (C) 2016  José Ricardo Rodríguez Abreu.                                                        
+ * Facultad de Ciencias,                                                                                    
+ * Universidad Nacional Autónoma de México, Mexico.                                                         
+ *                                                                                                          
+ * Este programa es software libre; se puede redistribuir                                                   
+ * y/o modificar en los términos establecidos por la                                                        
+ * Licencia Pública General de GNU tal como fue publicada                                                   
+ * por la Free Software Foundation en la versión 2 o                                                        
+ * superior.                                                                                                
+ *                                                                                                          
+ * Este programa es distribuido con la esperanza de que                                                     
+ * resulte de utilidad, pero SIN GARANTÍA ALGUNA; de hecho                                                  
+ * sin la garantía implícita de COMERCIALIZACIÓN o                                                          
+ * ADECUACIÓN PARA PROPÓSITOS PARTICULARES. Véase la                                                        
+ * Licencia Pública General de GNU para mayores detalles.                                                   
+ *                                                                                                          
+ * Con este programa se debe haber recibido una copia de la                                                 
+ * Licencia Pública General de GNU, de no ser así, visite el                                                
+ * siguiente URL:                                                                                           
+ * http://www.gnu.org/licenses/gpl.html                                                                     
+ * o escriba a la Free Software Foundation Inc.,                                                            
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.                                                
+ * -------------------------------------------------------------------                                      
+ */
+
 import processing.core.PApplet;
 import processing.core.PFont;
 
 import java.util.LinkedList;
 import java.util.Hashtable;
 
+/**                                                                                                         
+ * @author Jose Ricardo Rodriguez Abreu                                                                     
+ * @version 1.0                                                                                             
+ * @since Apr 10 2016.                                                                                      
+ * <p>                                                                                                      
+ * Clase para jugar gato usando el algoritmo minimax.</p>                                                 
+ *                                                                                                          
+ * <p>                                                                                                      
+ * Crea un juego de gato para poder probar el algoritmo minimax.</p>                              
+ */
 public class Minimax extends PApplet {
 
+    /** Es el tamaño del tablero. */
     public static final int tamanio = 500;
+    /** Es el objeto Gato, que define el juego. */
     public Gato gato;
+    /** Son las fichas actuales del tablero. */
     public Ficha[][] tablero;
-    
+
+    /**
+     * Son las configuraciones iniciales del juego.
+     */
     public void settings(){
 	size(tamanio, tamanio+100);    
     }
 
+    /** 
+     * Metodo para imprimir en el tablero las intrucciones.
+     */
     private void pintaLetras(){
 	background(200);
 	PFont f = createFont("Arial",13,true); 
@@ -29,6 +76,9 @@ public class Minimax extends PApplet {
 	
     }
 
+    /**
+     * Son las Configuraciones del juego.
+     */
     @Override
     public void setup(){	
 	surface.setResizable(false);
@@ -48,6 +98,9 @@ public class Minimax extends PApplet {
 	}
     }
 
+    /**
+     * Como debe actuar el juego en caso de presionar las teclas.
+     */
     public void keyPressed() {
 	if(key == CODED)
 	    if(keyCode == RIGHT){
@@ -72,6 +125,9 @@ public class Minimax extends PApplet {
 	}
     }
 
+    /**
+     * Que pasa si se presiona el mouse. (tira una persona)
+     */
     public void mousePressed(){       
 	int area = tamanio/3;
 	int posX = (mouseX)/area;
@@ -86,6 +142,9 @@ public class Minimax extends PApplet {
     @Override
     public void draw(){}
 
+    /**
+     * Metodo para dibujar una nueva figura en el tablero.
+     */
     public void pinta(){	
 	pintaLetras();
 	int area = tamanio/3;
@@ -102,22 +161,38 @@ public class Minimax extends PApplet {
 	    }
 	}	
     }
-      
+
+    /**
+     * Enum para las fichas.
+     */
     protected enum Ficha{
 	EQUIS,CIRCULO,NADA
     }
 
+    /**
+     * Clase que usa nuestro juego para representar al gato.
+     */
     public class Gato{
 
-	
+	/** Es el tablero del juego. */
 	Ficha[][] tablero;
+	/** Un booleano para saber quien está jugando. */
 	boolean jugador1;
+	/** Un gato para saber de que gato padre venimos. */
 	Gato padre;
+	/** Es para saber cuando ya acabamos un juego. */
 	boolean ganado;
+	/** Un entero para ver que nos conviene en el juego. */
 	Integer utilidadOb;
+	/** Nos dice que ficha ganó el juego. */
 	Ficha ganador;
+	/** Nos da el nivel del juego. */
 	int nivel;
-	
+
+	/**
+	 * Metodo contructor del gato.
+	 * @param anterior - Nos hereda atributos de este tablero.
+	 */
 	public Gato(Gato anterior){	    
 	    this();
 	    this.nivel = anterior.nivel;
@@ -130,12 +205,19 @@ public class Minimax extends PApplet {
 	    this.quienSigue();
 	}
 
+	/**
+	 * Metodo constructor del gato.
+	 * @param tablero2 - Es el tablero que estamos especificando.
+	 */
 	public Gato(Ficha[][] tablero2){
 	    this();
 	    this.setTablero(tablero2);
 	    this.quienSigue();
 	}
 
+	/**
+	 * Metodo constructor del gato.
+	 */
 	public Gato(){
 	    this.nivel = -1;
 	    this.ganador = Ficha.NADA;
@@ -152,6 +234,7 @@ public class Minimax extends PApplet {
 	    this.quienSigue();
 	}
 
+	// Metodo privado para saber quien sigue en el juego.
 	private void quienSigue(){
 	    int equis = 0,circulo = 0;
 	    for(int i = 0; i < this.tablero.length; i++){
@@ -168,7 +251,11 @@ public class Minimax extends PApplet {
 	    else
 		this.jugador1 = false;
 	}
-	
+
+	/** 
+	 * Metodo para asignar un tablero al juego.
+	 * @param tableroN - es el nuevo tablero del juego.
+	 */
 	public void setTablero(Ficha[][] tableroN){	    
 	    for(int i = 0; i < this.tablero.length; i++){
 		for(int j = 0; j < this.tablero[0].length; j++){
@@ -177,18 +264,36 @@ public class Minimax extends PApplet {
 	    }
 	}
 
+	/**
+	 * Metodo para saber si un juego ya fue ganado.
+	 * @return true si el juego tiene un ganador.
+	 */
 	public boolean getGanado(){
 	    return this.ganado;
 	}
 
+	/**
+	 * Metodo que nos regresa un tablero.
+	 * @return el tablero del gato actual.
+	 */
 	public Ficha[][] getTablero(){
 	    return this.tablero;
 	}
 
+	/**
+	 * Nos dice si el que sigue es el jugador1.
+	 * @return true si el que sigue es el jugador 1.
+	 */
 	public boolean turnoJugador1(){
 	    return this.jugador1;
 	}
 
+	/**
+	 * Metodo para tirar en el tablero.
+	 * @param i - Es la posición i del eje x.
+	 * @param j - Es la posición j del eje y.
+	 * @param ficha - Es la ficha que estamos tirando.
+	 */
 	public void tira(int i, int j, Ficha ficha){
 	    this.tablero[i][j] = ficha;
 	    if(ficha != Ficha.NADA && this.hayGanador(i,j,ficha)){
@@ -197,6 +302,10 @@ public class Minimax extends PApplet {
 	    }
 	}
 
+	/**
+	 * Nos dice si un juego fue ganado o terminó en tablas.
+	 * @return true si ya finalizó y nadie ganó o alguien ganó
+	 */
 	public boolean tablas(){
 	    if(this.ganado == true)
 		return true;
@@ -209,7 +318,12 @@ public class Minimax extends PApplet {
 	    }
 	    return temp;
 	}
-	
+
+	/**
+	 * Metodo para tirar en el tablero.
+	 * @param i - Es la posición i del eje x.
+	 * @param j - Es la posición j del eje y.	
+	 */	
 	public void tira(int i, int j){
 	    if(this.jugador1){
 		this.tira(i,j,Ficha.EQUIS);
@@ -220,6 +334,10 @@ public class Minimax extends PApplet {
 	    }
 	}
 
+	/**
+	 * Metodo que nos regresa el siguiente Gato dado uno anterior para el juego.
+	 * @return La mejor estrategia Minimax del juego de gato.
+	 */
 	public Gato gatoDecisionMinimax(){
 	    Gato padreTemp = this.padre;
 	    this.padre = null; 
@@ -240,7 +358,8 @@ public class Minimax extends PApplet {
 	    this.padre = padreTemp;
 	    return g;
 	}
-	
+
+	// Aquí es donde se hace toda la magia.
 	private Gato asignarValor(Gato g, int nivel){
 	    g.nivel = nivel;
 	    g.quienSigue();	   
@@ -271,6 +390,7 @@ public class Minimax extends PApplet {
 	    }
 	}
 
+	//Metodo para dado dos gatos tener la máxima utilidad.
 	private Gato maxUtilidad(Gato gato1, Gato gato2){
 	    if(gato1.utilidadOb == gato2.utilidadOb){
 		if(gato1.nivel > gato2.nivel)
@@ -282,6 +402,7 @@ public class Minimax extends PApplet {
 	    return gato2;
 	}
 
+	//Metodo para dado dos gatos tener la mínima utilidad.
 	private Gato minUtilidad(Gato gato1, Gato gato2){
 	    if(gato1.utilidadOb == gato2.utilidadOb){
 		if(gato1.nivel > gato2.nivel)
@@ -292,7 +413,13 @@ public class Minimax extends PApplet {
 		return gato1;
 	    return gato2;
 	}
-	
+
+	/**
+	 * Nos dice si cuando alguien tira en una posición hay ganador.
+	 * @param x - Es la posición x que se tira.
+	 * @param y - Es la posición y que se tira.
+	 * @param marca - Es la ficha que está tirando.
+	 */
 	public boolean hayGanador(int x, int y, Ficha marca){
 	    // Horizontal
             if (tablero[x][(y + 1) % 3] == marca && tablero[x][(y + 2) % 3] == marca)
@@ -327,7 +454,7 @@ public class Minimax extends PApplet {
             }
         }
 
-	        /**
+	/**
         * Crea la lista sucesores y agrega a todos los estados que surjen de tiradas válidas.
         * Se consideran tiradas válidas a aquellas en una casilla libre.
         * Además, se optimiza el proceso no agregando estados con jugadas simétricas.
